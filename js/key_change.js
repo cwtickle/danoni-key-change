@@ -199,7 +199,7 @@
             'after': g_keyObj.chara9A_0
           },
           '23': {
-            'before': 'sleft,sdown,sup,sright,sleft,sdown,sup,sright,left,leftdia,down,space,up,rightdia,right,oni,left,leftdia,down,space,up,rightdia,right'.split(','),
+            'before': 'xleft,xdown,xup,xright,xleft,xdown,xup,xright,left,leftdia,down,space,up,rightdia,right,oni,left,leftdia,down,space,up,rightdia,right'.split(','),
             'after': g_keyObj.chara23_0,
           }
         }
@@ -210,7 +210,7 @@
             'after': g_keyObj.chara9A_0
           },
           '23': {
-            'before': 'sright,sup,sdown,sleft,sleft,sdown,sup,sright,right,rightdia,up,space,down,leftdia,left,oni,left,leftdia,down,space,up,rightdia,right'.split(','),
+            'before': 'xright,xup,xdown,xleft,xleft,xdown,xup,xright,right,rightdia,up,space,down,leftdia,left,oni,left,leftdia,down,space,up,rightdia,right'.split(','),
             'after': g_keyObj.chara23_0,
           }
         }
@@ -221,17 +221,26 @@
             'after': g_keyObj.chara9A_0
           },
           '23': {
-            'before': 'sright,sdown,sup,sleft,sleft,sdown,sup,sright,right,rightdia,up,space,down,leftdia,left,oni,left,leftdia,down,space,up,rightdia,right'.split(','),
+            'before': 'xright,xdown,xup,xleft,xleft,xdown,xup,xright,right,rightdia,up,space,down,leftdia,left,oni,left,leftdia,down,space,up,rightdia,right'.split(','),
             'after': g_keyObj.chara23_0,
           }
         }
       }
+      
+      const tmpCopyList = [`left`, `down`, `up`, `right`]
 
       // 譜面データのコピー
       singleKeyLabels.forEach((key, i) => {
         if (convertPattern[key]) {
           const suffix = i > 0 ? i + 1 : ''
 
+          // sleft, sdown, sup, srightは再読込時に支障があるため別変数(xleft, xdown, xup, xright)へ退避
+          tmpCopyList.forEach(key => {
+            if (g_rootObj[`s${key}${suffix}_data`]) {
+              g_rootObj[`x${key}${suffix}_data`] = g_rootObj[`s${key}${suffix}_data`]
+            }
+          })
+          
           // 通常矢
           const notes = convertPattern[key].before.map(chara => g_rootObj[`${chara}${suffix}_data`])
           convertPattern[key].after.forEach((chara, j) => {
@@ -254,8 +263,10 @@
         if (key === '23') {
           g_keyObj.chara23_0.forEach(chara => {
             const suffix = i > 0 ? i + 1 : ''
-            g_rootObj[`${chara}${suffix}_data`] = ''
-            g_rootObj[`${getFrzName(chara)}${suffix}_data`] = ''
+            if (chara.startsWith(`s`)) {
+              g_rootObj[`${chara}${suffix}_data`] = ''
+              g_rootObj[`${getFrzName(chara)}${suffix}_data`] = ''
+            }
           })
         }
       })
@@ -263,17 +274,10 @@
 
     // 初回処理
     doubleBattle()
-    if (document.getElementById(`dos`) === null) {
-      g_customJsObj.preTitle.push(cleanUpDouble)
-    }
+    g_customJsObj.preTitle.push(cleanUpDouble)
   
     // 開始時に再読み込みがかかるので再度実行
-    // 譜面埋め込みかつ譜面番号が1譜面目以外は再読み込みが起こらないため除外する
     g_customJsObj.preloading.push(doubleBattle)
-    g_customJsObj.loading.push(() => {
-      if (document.getElementById(`dos`) === null || g_stateObj.scoreId === 0) {
-        cleanUpDouble()
-      }
-    })
+    g_customJsObj.loading.push(cleanUpDouble)
   }
 }
