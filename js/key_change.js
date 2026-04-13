@@ -263,10 +263,17 @@
 
     // 初回処理
     doubleBattle()
-    g_customJsObj.preTitle.push(cleanUpDouble)
+    if (document.getElementById(`dos`) === null) {
+      g_customJsObj.preTitle.push(cleanUpDouble)
+    }
   
     // 開始時に再読み込みがかかるので再度実行
+    // 譜面埋め込みかつ譜面番号が1譜面目以外は再読み込みが起こらないため除外する
     g_customJsObj.preloading.push(doubleBattle)
-    g_customJsObj.loading.push(cleanUpDouble)
+    g_customJsObj.loading.push(() => {
+      if (document.getElementById(`dos`) === null || g_stateObj.scoreId === 0) {
+        cleanUpDouble()
+      }
+    })
   }
 }
