@@ -163,6 +163,7 @@
   // --------------------------------------------------------------------------
   const double = urlObj.searchParams.get('double')
   const singleKeyLabels = [] // キー数変換後、Double化前のキー
+  const resetCharaBase = [`left`, `down`, `up`, `right`, `frzLeft`, `frzDown`, `frzUp`, `frzRight`]
 
   if (double) {
     let suffix // 難易度名の後ろに付けるやつ
@@ -226,8 +227,6 @@
           }
         }
       }
-      
-      const tmpCopyList = [`left`, `down`, `up`, `right`]
 
       // 譜面データのコピー
       singleKeyLabels.forEach((key, i) => {
@@ -235,7 +234,7 @@
           const suffix = i > 0 ? i + 1 : ''
 
           // sleft, sdown, sup, srightは再読込時に支障があるため別変数(xleft, xdown, xup, xright)へ退避
-          tmpCopyList.forEach(key => {
+          resetCharaBase.forEach(key => {
             if (g_rootObj[`s${key}${suffix}_data`]) {
               g_rootObj[`x${key}${suffix}_data`] = g_rootObj[`s${key}${suffix}_data`]
             }
@@ -263,7 +262,7 @@
         if (key === '23') {
           g_keyObj.chara23_0.forEach(chara => {
             const suffix = i > 0 ? i + 1 : ''
-            if (chara.startsWith(`s`)) {
+            if (chara.startsWith(`s`) && resetCharaBase.includes(chara.slice(1))) {
               g_rootObj[`${chara}${suffix}_data`] = ''
               g_rootObj[`${getFrzName(chara)}${suffix}_data`] = ''
             }
